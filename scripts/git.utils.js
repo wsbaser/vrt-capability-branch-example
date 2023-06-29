@@ -14,7 +14,7 @@ module.exports.clearStage=()=>{
 }
 
 module.exports.createCommit = (message)=>{
-    return exec(`git commit --allow-empty -m'${message}'`).toString().trim()
+    return exec(`git commit --allow-empty -m"${message}"`).toString().trim()
 }
 
 module.exports.push = (name)=>{
