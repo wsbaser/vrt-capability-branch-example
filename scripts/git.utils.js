@@ -30,7 +30,7 @@ module.exports.deleteLocalTag = (name)=>{
 }
 
 module.exports.deleteRemoteTag = (name)=>{
-    return exec(`git push -delete origin ${name}`)
+    return exec(`git push --delete origin ${name}`)
 }
 
 module.exports.addTag = (name)=>{
