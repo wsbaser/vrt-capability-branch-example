@@ -1,8 +1,12 @@
 const {getCurrentBranch,findTag,createCommit, clearStage, addTag, deleteLocalTag, push, pushWithSetUpstream, deleteRemoteTag} = require('./git.utils')
+//==================================================================================
+// CONFIGURATION: Set branch prefix and capability tag prefix to values that suite your project.
+//==================================================================================
 
 const CAPABILITY_BRANCH_PREFIX = 'capability/'
 const CAPABILITY_TAG_PREFIX = 'capability-tag/'
 
+//==================================================================================
 const log = (message)=>{
     console.log(`>>>>> ........................................................................`)
     console.log(`>>>>> ${message}`)
