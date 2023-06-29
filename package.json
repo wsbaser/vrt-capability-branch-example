@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Shows how to support capability branches in VRT",
   "scripts": {
+    "prepare":"husky install",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -17,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/wsbaser/vrt-capability-branch-example/issues"
   },
-  "homepage": "https://github.com/wsbaser/vrt-capability-branch-example#readme"
+  "homepage": "https://github.com/wsbaser/vrt-capability-branch-example#readme",
+  "devDependencies": {
+    "husky": "^8.0.3"
+  }
 }
