@@ -4,6 +4,7 @@
   "description": "Shows how to support capability branches in VRT",
   "scripts": {
     "prepare":"husky install",
+    "capability:init": "node ./scripts/init-capability",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
