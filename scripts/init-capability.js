@@ -1,4 +1,4 @@
-const {getCurrentBranch,findTag,createCommit, push, clearStage, addTag} = require('./git.utils')
+const {getCurrentBranch,findTag,createCommit, clearStage, addTag, deleteLocalTag, push, pushWithSetUpstream, deleteRemoteTag} = require('./git.utils')
 
 const CAPABILITY_BRANCH_PREFIX = 'capability/'
 const CAPABILITY_TAG_PREFIX = 'capability-tag/'
@@ -40,17 +40,31 @@ createCommit(`Initial commit for capability ${capabilityName}`)
 // 5. Push commit
 //==================================================================================
 console.log(`Pushing initial commit...`)
-//push()
+pushWithSetUpstream(currentBranch)
 //==================================================================================
 // 6. Add tag for initial commit
 //==================================================================================
 console.log(`Creating capability tag...`)
 capabilityTag =`${CAPABILITY_TAG_PREFIX}${capabilityName}` 
+try{
+    deleteLocalTag(capabilityTag)
+    console.log(`Tag already existed locally. Deleted old one.`)
+}
+catch{
+    console.log('Checked that local tag with the same name does not exist.')
+}
 addTag(capabilityTag)
 //==================================================================================
 // 7. Push tag to origin
 //==================================================================================
 console.log(`Pushing capability tag...`)
+try{
+    deleteRemoteTag(capabilityTag)
+    console.log(`Tag already existed remotely. Deleted old one.`)
+}
+catch{
+    console.log('Checked that remote tag with the same name does not exist.')
+}
 push(capabilityTag)
 //==================================================================================
 console.log(`All set! Now your capability branch has capability tag. Please, configure passing capabilityBranchName option for VRT.`)

@@ -17,12 +17,20 @@ module.exports.createCommit = (message)=>{
     return exec(`git commit --allow-empty -m"${message}"`).toString().trim()
 }
 
+module.exports.pushWithSetUpstream = (name)=>{
+    exec(`git push --set-upstream origin ${name}`)
+}
+
 module.exports.push = (name)=>{
-    if(name){
-        exec(`git push origin ${name}`)
-    }else{
-        exec(`git push`)
-    }
+    exec(`git push origin ${name}`)
+}
+
+module.exports.deleteLocalTag = (name)=>{
+    return exec(`git tag -d ${name}`)
+}
+
+module.exports.deleteRemoteTag = (name)=>{
+    return exec(`git push -delete origin ${name}`)
 }
 
 module.exports.addTag = (name)=>{
