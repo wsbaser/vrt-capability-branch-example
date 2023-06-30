@@ -1,4 +1,13 @@
 #!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
+. "$(dirname -- "$0")/_/husky.sh"                                                                      
 
-npm run capability:init
+printf '\npost-checkout hook\n\n'                                                
+
+prevHEAD=$1                                                                      
+newHEAD=$2                                                                       
+checkoutType=$3                                                                  
+
+if [ "$prevHEAD" = "$newHEAD" -a $checkoutType -eq 1 ]; then
+    echo ">>>>> Checked out new branch (or a branch pointing to the same commit as previous branch)."
+    npm run capability:init -- $prevHEAD 
+fi

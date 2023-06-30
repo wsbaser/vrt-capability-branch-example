@@ -1,11 +1,23 @@
-const {getCurrentBranch,findTag,createCommit, clearStage, addTag, deleteLocalTag, push, pushWithSetUpstream, deleteRemoteTag} = require('./git.utils')
+const {
+    getCurrentBranch,
+    findTag,
+    createCommit,
+    clearStage,
+    addTag,
+    push,
+    pushWithSetUpstream,
+    getLocalHeadsFor,
+} = require('./git.utils')
+//==================================================================================
+// ARGUMENTS
+//==================================================================================
+const commitHash = process.argv[2]
 //==================================================================================
 // CONFIGURATION: Set branch prefix and capability tag prefix to values that suite your project.
 //==================================================================================
-
 const CAPABILITY_BRANCH_PREFIX = 'capability/'
 const CAPABILITY_TAG_PREFIX = 'capability-tag/'
-
+const IGNORE_BRANCHES = [/^main$/,/^master$/]
 //==================================================================================
 const log = (message)=>{
     console.log(`>>>>> ${message}`)
@@ -17,33 +29,53 @@ if(CAPABILITY_BRANCH_PREFIX===CAPABILITY_TAG_PREFIX){
     throw Error("Capability branch prefix and capability tag prefix are equal. This will lead to creating tag with the same name as branch and make git confused by ambiguous references.")
 }
 //==================================================================================
-// 1. Check if we are on the capability branch
+// 1. Check if we are on the branch based on capability branch
 //==================================================================================
 const currentBranch = getCurrentBranch()
-if(!currentBranch.startsWith(CAPABILITY_BRANCH_PREFIX)){
-    log('This is not a capability branch.')
+if(IGNORE_BRANCHES.some(b=>currentBranch.match(b))){
+    log(`'${currentBranch}' is not a feature branch.`)
     return
 }
+const commitHeads = getLocalHeadsFor(commitHash)
+commitHeads.forEach((h)=>{console.log(h)})
+const capabilityBranches = commitHeads.filter(h=>h.startsWith(CAPABILITY_BRANCH_PREFIX))
+if(capabilityBranches.length>1){
+    throw new Error(`There are several capability branches based on commit ${commitHash}. Unable to define which capability current branch belongs to.`)
+}
+if(capabilityBranches.length==0){
+    log('This feature branch is not based on the capability branch.')
+    return
+}
+const capabilityBranch = capabilityBranches[0]
+if(capabilityBranch===currentBranch){
+    log(`'${currentBranch}' is a capability branch.`)
+    return
+} 
+log(`'${currentBranch}' is a feature branch based on the capability branch '${capabilityBranch}'.`)
+
 //==================================================================================
 // 2. Check if capability tag exists
 //==================================================================================
 let capabilityTag = findTag(CAPABILITY_TAG_PREFIX)
 if(capabilityTag){
-    log(`This is a capability branch, but capability tag already exists: ${capabilityTag}.`)
+    log(`Capability tag already exists: ${capabilityTag}.`)
     return
 }
 //==================================================================================
 // 3. Get capability name from capability branch name
 //==================================================================================
-const capabilityName = currentBranch.substring(CAPABILITY_BRANCH_PREFIX.length)
-log(`You have just checked out branch for capability '${capabilityName.toUpperCase()}'.`)
+const capabilityName = capabilityBranch.substring(CAPABILITY_BRANCH_PREFIX.length).trim()
+if(!capabilityName){
+    throw new Error(`Capability branch '${capabilityBranch}' does not contain capability name.`)
+}
+log(`Capability name: '${capabilityName.toUpperCase()}'.`)
 //==================================================================================
 // 4. Create initial empty commit for capability branch
 //==================================================================================
 log(`Clearing staged changes...`)
 clearStage()   // Since we need to create empty commit, we need to clear the stage
-log(`Creating initial commit for capability branch...`)
-createCommit(`Initial commit for capability ${capabilityName}`)
+log(`Creating initial commit for capability (required for capability tag)...`)
+createCommit(`Initial commit for capability ${capabilityName.toUpperCase()} in '${currentBranch}'`)
 //==================================================================================
 // 5. Push commit
 //==================================================================================
@@ -53,26 +85,13 @@ pushWithSetUpstream(currentBranch)
 // 6. Add tag for initial commit
 //==================================================================================
 log(`Creating capability tag...`)
-capabilityTag =`${CAPABILITY_TAG_PREFIX}${capabilityName}` 
-try{
-    deleteLocalTag(capabilityTag)
-    log(`Tag already existed locally. Deleted old one.`)
-}
-catch{
-    log('Checked that local tag with the same name does not exist.')
-}
+const tagId = Math.floor(Math.random() * 1000000000)
+capabilityTag =`${CAPABILITY_TAG_PREFIX}${capabilityName}.${tagId}` 
 addTag(capabilityTag)
 //==================================================================================
 // 7. Push tag to origin
 //==================================================================================
 log(`Pushing capability tag...`)
-try{
-    deleteRemoteTag(capabilityTag)
-    log(`Tag already existed remotely. Deleted old one.`)
-}
-catch{
-    log('Checked that remote tag with the same name does not exist.')
-}
 push(capabilityTag)
 //==================================================================================
-log(`All set! Now your capability branch has capability tag. Please, configure passing capabilityBranchName option for VRT.`)
+log(`All set! Now your capability branch has a capability tag. Please, configure passing capabilityBranchName option to VRT.`)

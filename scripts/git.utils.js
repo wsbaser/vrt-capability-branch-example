@@ -46,3 +46,16 @@ module.exports.findTag=(pattern)=>{
         ).flat()
     return tags.find(t=>!!t.match(pattern))
 }
+
+const getRefNamesFor = (commit, prefix)=>{
+    const output = exec(`git for-each-ref --points-at ${commit} --format=%(refname:short) ${prefix}`).toString()
+    return output.split('\n')
+}
+
+module.exports.getLocalHeadsFor = (commit)=>{
+    return getRefNamesFor(commit, 'refs/heads')
+}
+
+module.exports.getLocalTagsFor = (commit)=>{
+    return getRefNamesFor(commit, 'refs/tags')
+}
